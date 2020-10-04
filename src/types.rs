@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 
@@ -25,10 +24,22 @@ impl Type {
             Self::Variable(id) => substitutions.get(id).unwrap_or_else(|| self).clone(),
         }
     }
+
+    pub fn free_variables(&self) -> HashSet<usize> {
+        match self {
+            Self::Function(argument_type, result_type) => {
+                let mut variables = argument_type.free_variables();
+                variables.extend(result_type.free_variables());
+                variables
+            }
+            Self::Number => Default::default(),
+            Self::Variable(id) => vec![*id].into_iter().collect(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct TypeScheme(HashSet<usize>, Type);
+pub struct TypeScheme(pub HashSet<usize>, pub Type);
 
 impl Display for Type {
     fn fmt(&self, formatter: &mut Formatter) -> std::fmt::Result {
