@@ -6,7 +6,7 @@ use std::collections::{HashMap, HashSet};
 pub struct InferenceError;
 
 pub fn infer(
-    environment: &HashMap<String, Type>,
+    environment: &HashMap<String, TypeScheme>,
     expression: &Expression,
 ) -> Result<(HashMap<usize, Type>, Type), InferenceError> {
     Ok(match expression {
@@ -31,7 +31,10 @@ pub fn infer(
             let argument_type = Type::new_variable();
 
             let mut environment = environment.clone();
-            environment.insert(variable.clone(), argument_type.clone());
+            environment.insert(
+                variable.clone(),
+                TypeScheme(Default::default(), argument_type.clone()),
+            );
 
             let (substitutions, result_type) = infer(&environment, &expression)?;
             let function_type =
@@ -42,8 +45,17 @@ pub fn infer(
         Expression::Let(variable, bound_expression, expression) => {
             let (mut substitutions, type_) = infer(&environment, &bound_expression)?;
 
+            let type_scheme = TypeScheme(
+                type_
+                    .variables()
+                    .difference(&calculate_free_variables_in_environment(environment))
+                    .cloned()
+                    .collect(),
+                type_.clone(),
+            );
+
             let mut environment = environment.clone();
-            environment.insert(variable.clone(), type_.clone());
+            environment.insert(variable.clone(), type_scheme);
 
             let (other_substitutions, type_) = infer(&environment, &expression)?;
 
@@ -54,7 +66,7 @@ pub fn infer(
         Expression::Number(_) => (Default::default(), Type::Number),
         Expression::Variable(variable) => (
             Default::default(),
-            environment.get(variable).ok_or(InferenceError)?.clone(),
+            environment.get(variable).ok_or(InferenceError)?.instance(),
         ),
     })
 }

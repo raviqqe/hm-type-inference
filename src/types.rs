@@ -61,4 +61,15 @@ impl TypeScheme {
             .cloned()
             .collect()
     }
+
+    pub fn instance(&self) -> Type {
+        let TypeScheme(bound_variables, type_) = self;
+
+        type_.substitute(
+            &bound_variables
+                .iter()
+                .map(|id| (*id, Type::new_variable()))
+                .collect(),
+        )
+    }
 }
