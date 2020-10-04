@@ -38,9 +38,6 @@ impl Type {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct TypeScheme(pub HashSet<usize>, pub Type);
-
 impl Display for Type {
     fn fmt(&self, formatter: &mut Formatter) -> std::fmt::Result {
         match self {
@@ -48,5 +45,20 @@ impl Display for Type {
             Self::Number => write!(formatter, "Number"),
             Self::Variable(id) => write!(formatter, "#{}", id),
         }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TypeScheme(pub HashSet<usize>, pub Type);
+
+impl TypeScheme {
+    pub fn free_variables(&self) -> HashSet<usize> {
+        let TypeScheme(bound_variables, type_) = self;
+
+        type_
+            .free_variables()
+            .difference(bound_variables)
+            .cloned()
+            .collect()
     }
 }

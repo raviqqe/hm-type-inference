@@ -1,6 +1,6 @@
 use crate::ast::*;
-use crate::types::Type;
-use std::collections::HashMap;
+use crate::types::{Type, TypeScheme};
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug)]
 pub struct InferenceError;
@@ -82,4 +82,16 @@ fn unify(one: &Type, other: &Type) -> Result<HashMap<usize, Type>, InferenceErro
         }
         _ => return Err(InferenceError),
     })
+}
+
+fn calculate_free_variables_in_environment(
+    environment: &HashMap<String, TypeScheme>,
+) -> HashSet<usize> {
+    let mut variables = HashSet::new();
+
+    for (_, type_scheme) in environment {
+        variables.extend(type_scheme.free_variables());
+    }
+
+    variables
 }
