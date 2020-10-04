@@ -25,11 +25,11 @@ impl Type {
         }
     }
 
-    pub fn free_variables(&self) -> HashSet<usize> {
+    pub fn variables(&self) -> HashSet<usize> {
         match self {
             Self::Function(argument_type, result_type) => {
-                let mut variables = argument_type.free_variables();
-                variables.extend(result_type.free_variables());
+                let mut variables = argument_type.variables();
+                variables.extend(result_type.variables());
                 variables
             }
             Self::Number => Default::default(),
@@ -56,7 +56,7 @@ impl TypeScheme {
         let TypeScheme(bound_variables, type_) = self;
 
         type_
-            .free_variables()
+            .variables()
             .difference(bound_variables)
             .cloned()
             .collect()
