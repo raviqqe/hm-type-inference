@@ -50,6 +50,8 @@ fn infer(
         }
         Expression::Let(variable, bound_expression, expression) => {
             let mut environment = environment.clone();
+
+            // Assume a concrete type of the variable for recursive types.
             environment.insert(
                 variable.clone(),
                 TypeScheme(Default::default(), Type::new_variable()),
@@ -57,6 +59,7 @@ fn infer(
 
             let (mut substitutions, type_) = infer(&environment, &bound_expression)?;
 
+            // Use the inferred type to construct the actual type which is possibly recursive.
             let type_scheme = TypeScheme(
                 type_
                     .variables()
