@@ -49,12 +49,18 @@ fn infer(
             (substitutions, function_type)
         }
         Expression::Let(variable, bound_expression, expression) => {
+            let mut environment = environment.clone();
+            environment.insert(
+                variable.clone(),
+                TypeScheme(Default::default(), Type::new_variable()),
+            );
+
             let (mut substitutions, type_) = infer(&environment, &bound_expression)?;
 
             let type_scheme = TypeScheme(
                 type_
                     .variables()
-                    .difference(&calculate_free_variables_in_environment(environment))
+                    .difference(&calculate_free_variables_in_environment(&environment))
                     .cloned()
                     .collect(),
                 type_,
