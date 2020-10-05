@@ -9,6 +9,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - run: cargo build
       - run: cargo fmt -- --check
       - run: cargo clippy -- -D warnings
