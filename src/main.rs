@@ -27,6 +27,8 @@ fn main() {
             lambda("x", var("x")),
             let_("y", app(var("f"), num(42)), var("f")),
         ),
+        let_("f", lambda("x", lambda("x", var("x"))), var("f")),
+        let_("f", lambda("x", lambda("y", var("x"))), var("f")),
     ] {
         let type_scheme = infer_type_scheme(expression).unwrap();
 
