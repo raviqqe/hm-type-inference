@@ -57,7 +57,7 @@ fn infer(
                     .difference(&calculate_free_variables_in_environment(environment))
                     .cloned()
                     .collect(),
-                type_.clone(),
+                type_,
             );
 
             let mut environment = environment.clone();
@@ -79,10 +79,8 @@ fn infer(
 
 fn unify(one: &Type, other: &Type) -> Result<HashMap<usize, Type>, InferenceError> {
     Ok(match (one, other) {
-        (Type::Variable(variable), other) | (other, Type::Variable(variable)) => {
-            vec![(variable.clone(), other.clone())]
-                .into_iter()
-                .collect()
+        (Type::Variable(id), other) | (other, Type::Variable(id)) => {
+            vec![(*id, other.clone())].into_iter().collect()
         }
         (Type::Number, Type::Number) => Default::default(),
         (
@@ -107,7 +105,7 @@ fn calculate_free_variables_in_environment(
 ) -> HashSet<usize> {
     let mut variables = HashSet::new();
 
-    for (_, type_scheme) in environment {
+    for type_scheme in environment.values() {
         variables.extend(type_scheme.free_variables());
     }
 
