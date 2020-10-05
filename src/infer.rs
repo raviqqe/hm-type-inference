@@ -69,7 +69,6 @@ fn infer(
                 type_,
             );
 
-            let mut environment = environment.clone();
             environment.insert(variable.clone(), type_scheme);
 
             let (other_substitutions, type_) = infer(&environment, &expression)?;
