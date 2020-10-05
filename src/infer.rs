@@ -11,6 +11,7 @@ pub fn infer_type_scheme(expression: &Expression) -> Result<TypeScheme, Inferenc
     Ok(TypeScheme(type_.variables(), type_))
 }
 
+// TODO Fix the type of substitutions. Replace it with Vec<(usize, Type)>?
 fn infer(
     environment: &HashMap<String, TypeScheme>,
     expression: &Expression,
