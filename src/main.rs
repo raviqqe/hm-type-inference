@@ -3,7 +3,7 @@ mod infer;
 mod types;
 
 use ast::*;
-use infer::infer;
+use infer::*;
 use types::*;
 
 fn main() {
@@ -35,9 +35,8 @@ fn main() {
             Type::Number,
         ),
     ] {
-        let (_, type_) = infer(&Default::default(), expression).unwrap();
+        let type_scheme = infer_type_scheme(expression).unwrap();
 
-        println!("{} : {}", expression, type_);
-        assert_eq!(&type_, expected_type);
+        println!("{} : {}", expression, type_scheme);
     }
 }

@@ -43,7 +43,7 @@ impl Display for Type {
         match self {
             Self::Function(argument, result) => write!(formatter, "{} -> {}", argument, result),
             Self::Number => write!(formatter, "Number"),
-            Self::Variable(id) => write!(formatter, "#{}", id),
+            Self::Variable(id) => write!(formatter, "<{}>", &format!("{:04x}", id)[..4]),
         }
     }
 }
@@ -53,23 +53,40 @@ pub struct TypeScheme(pub HashSet<usize>, pub Type);
 
 impl TypeScheme {
     pub fn free_variables(&self) -> HashSet<usize> {
-        let TypeScheme(bound_variables, type_) = self;
+        let TypeScheme(varaiables, type_) = self;
 
-        type_
-            .variables()
-            .difference(bound_variables)
-            .cloned()
-            .collect()
+        type_.variables().difference(varaiables).cloned().collect()
     }
 
     pub fn instance(&self) -> Type {
-        let TypeScheme(bound_variables, type_) = self;
+        let TypeScheme(variables, type_) = self;
 
         type_.substitute(
-            &bound_variables
+            &variables
                 .iter()
                 .map(|id| (*id, Type::new_variable()))
                 .collect(),
         )
+    }
+}
+
+impl Display for TypeScheme {
+    fn fmt(&self, formatter: &mut Formatter) -> std::fmt::Result {
+        let TypeScheme(variables, type_) = self;
+
+        if variables.is_empty() {
+            write!(formatter, "{}", type_)
+        } else {
+            write!(
+                formatter,
+                "\\{}. {}",
+                variables
+                    .iter()
+                    .map(|id| format!("{}", Type::Variable(*id)))
+                    .collect::<Vec<_>>()
+                    .join(", "),
+                type_
+            )
+        }
     }
 }

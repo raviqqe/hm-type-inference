@@ -5,7 +5,13 @@ use std::collections::{HashMap, HashSet};
 #[derive(Debug)]
 pub struct InferenceError;
 
-pub fn infer(
+pub fn infer_type_scheme(expression: &Expression) -> Result<TypeScheme, InferenceError> {
+    let (_, type_) = infer(&Default::default(), expression)?;
+
+    Ok(TypeScheme(type_.variables(), type_))
+}
+
+fn infer(
     environment: &HashMap<String, TypeScheme>,
     expression: &Expression,
 ) -> Result<(HashMap<usize, Type>, Type), InferenceError> {
