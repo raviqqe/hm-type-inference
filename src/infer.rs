@@ -18,8 +18,8 @@ fn infer(
 ) -> Result<(HashMap<usize, Type>, Type), InferenceError> {
     Ok(match expression {
         Expression::Application(function, argument) => {
-            let (mut substitutions, function_type) = infer(&environment, &function)?;
-            let (other_substitutions, argument_type) = infer(&environment, &argument)?;
+            let (mut substitutions, function_type) = infer(environment, function)?;
+            let (other_substitutions, argument_type) = infer(environment, argument)?;
 
             substitutions.extend(other_substitutions);
 
@@ -43,7 +43,7 @@ fn infer(
                 TypeScheme(Default::default(), argument_type.clone()),
             );
 
-            let (substitutions, result_type) = infer(&environment, &expression)?;
+            let (substitutions, result_type) = infer(&environment, expression)?;
             let function_type =
                 Type::Function(argument_type.into(), result_type.into()).substitute(&substitutions);
 
@@ -58,7 +58,7 @@ fn infer(
                 TypeScheme(Default::default(), Type::new_variable()),
             );
 
-            let (mut substitutions, type_) = infer(&environment, &bound_expression)?;
+            let (mut substitutions, type_) = infer(&environment, bound_expression)?;
 
             // Use the inferred type to construct the actual type which is possibly recursive.
             let type_scheme = TypeScheme(
@@ -72,7 +72,7 @@ fn infer(
 
             environment.insert(variable.clone(), type_scheme);
 
-            let (other_substitutions, type_) = infer(&environment, &expression)?;
+            let (other_substitutions, type_) = infer(&environment, expression)?;
 
             substitutions.extend(other_substitutions);
 
